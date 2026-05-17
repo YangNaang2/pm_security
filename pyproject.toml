@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pm_security"
+version = "0.1.0"
+description = "object detection for private mobility illegal parking and driving"
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "MIT" }
+
+dependencies = [
+    "opencv-python>=4.8.0",
+    "Pillow>=10.0.0",
+    "ultralytics>=8.4.0" # supports YOLO26
+]
