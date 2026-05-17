@@ -26,5 +26,14 @@ def convert_dataset_to_jpg(target_dir):
                 print(f"Error {file_name}: {e}")
 
 if __name__ == "__main__":
-    IMAGE_DIRECTORY = '../../data/raw/parking/normal/' 
-    convert_dataset_to_jpg(IMAGE_DIRECTORY)
+    IMAGE_DIRECTORIES = [
+        '../../data/raw/driving/abnormal/helmet_no/',
+        '../../data/raw/driving/abnormal/many_drivers/'
+    ]
+    for directory in IMAGE_DIRECTORIES:
+        if os.path.exists(directory):
+            print(f"==== 변환 시작: {directory} ====")
+            convert_dataset_to_jpg(directory)
+            print(f"==== 변환 완료: {directory} ====\n")
+        else:
+            print(f"경로를 찾을 수 없습니다: {directory}\n")
