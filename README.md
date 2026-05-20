@@ -25,3 +25,4 @@ conda create -n pm_security python=3.11 -y
 conda activate pm_security
 pip install .
 ```
+* [주행 모델 다인승 판별 알고리즘 상세 보기](docs/algorithm_logic.md)
