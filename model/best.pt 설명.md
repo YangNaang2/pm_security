@@ -97,7 +97,7 @@ NORMAL / VIOLATION
 
 # 🧠 Layer 2 — Spatial Logic Gate
 
-본 프로젝트의 핵심 기여(Core Contribution)는
+본 프로젝트의 핵심은
 객체 탐지 결과를 후처리하여 실제 위반 여부를 판별하는
 **기하학 기반 공간 필터링 알고리즘**입니다.
 
@@ -216,18 +216,5 @@ Foot-Point 기반 검증으로 CCTV 환경 오탐 최소화
 * 공유 모빌리티 관제
 
 등 실제 서비스 적용을 고려한 파이프라인 구성
-
----
-
-# 🛠️ Tech Stack
-
-| Category         | Stack    |
-| ---------------- | -------- |
-| Deep Learning    | YOLO26   |
-| Framework        | PyTorch  |
-| Annotation       | Roboflow |
-| Language         | Python   |
-| GPU Acceleration | CUDA     |
-| Computer Vision  | OpenCV   |
 
 ---
