@@ -1,4 +1,4 @@
-markdown_content = """# PM Security: Personal Mobility Safety Violation Detection System
+"""# PM Security: Personal Mobility Safety Violation Detection System
 > **전동 킥보드 안전 수칙 위반 자동 감지 및 고도화된 공간 필터링 파이프라인**
 
 본 저장소는 전동 킥보드(Personal Mobility, PM)의 안전한 이용 환경을 조성하기 위해, 딥러닝 기반 객체 탐지 기술과 기하학적 공간 연산 알고리즘을 결합한 **안전 수칙 위반 실시간 자동 감지 시스템**의 모델 훈련 및 상황 판별 핵심 엔진을 포함하고 있습니다.
