@@ -1,60 +1,285 @@
-"""# PM Security: Personal Mobility Safety Violation Detection System
-> **전동 킥보드 안전 수칙 위반 자동 감지 및 고도화된 공간 필터링 파이프라인**
+# PM Security: Personal Mobility Safety Violation Detection System
 
-본 저장소는 전동 킥보드(Personal Mobility, PM)의 안전한 이용 환경을 조성하기 위해, 딥러닝 기반 객체 탐지 기술과 기하학적 공간 연산 알고리즘을 결합한 **안전 수칙 위반 실시간 자동 감지 시스템**의 모델 훈련 및 상황 판별 핵심 엔진을 포함하고 있습니다.
-
----
-
-## 🛠️ 1. 프로젝트 아키텍처 (Project Architecture)
-
-본 시스템은 단순히 인원수를 카운팅하는 기존 방식의 한계를 극복하기 위해 **2단계 레이어(Two-Layer 구조)**로 설계되었습니다.
-
-1. **Layer 1 (Object Detection):** 이미지 내 최적의 단서(`kickboard`, `human`, `helmet`, `bare_head`)를 독립적으로 검출하는 AI 모델 엔진
-2. **Layer 2 (Spatial Logic Gate):** 검출된 객체 간의 공간적 교집합(IoU) 및 원근법 방어용 하단 좌표(발끝) 종속성을 수학적으로 계산하여 최종 위반 여부(`NORMAL` / `VIOLATION`)를 판결하는 추론 알고리즘
+> **딥러닝 기반 전동 킥보드 안전 수칙 위반 자동 감지 시스템**
+> *Real-time Personal Mobility (PM) Safety Violation Detection with Spatial Reasoning Pipeline*
 
 ---
 
-## 📊 2. 데이터셋 및 전처리 (Dataset & Preprocessing)
+## 📌 Overview
 
-* **라벨링 툴 (Labeling Tool):** [Roboflow](https://roboflow.com)를 통한 고정밀 바운딩 박스 어노테이션 수행
-* **클래스 정의 (Class Definitions):** 총 4가지 핵심 클래스로 세분화하여 라벨링 진행
-  * `0: bare_head` (안전모 미착용 머리)
-  * `1: helmet` (안전모 착용 머리)
-  * `2: human` (탑승자 신체)
-  * `3: kickboard` (전동 킥보드 차량)
-* **데이터 분할 (Data Split):** 모델의 과적합(Overfitting)을 방지하고 객관적인 수능 시험 평가를 진행하기 위해 완벽한 **8:1:1** 비율로 데이터셋을 엄격히 격리 분할함.
-  * **Train (학습 데이터):** 80%
-  * **Valid (검증 데이터):** 10%
-  * **Test (최종 평가 데이터):** 10%
+본 프로젝트는 전동 킥보드(Personal Mobility, PM)의 안전 수칙 위반 행위를 자동으로 감지하기 위한 **AI 기반 실시간 영상 분석 시스템**입니다.
 
----
+단순 객체 탐지(Object Detection)에 그치지 않고,
+검출된 객체 간의 **공간적 관계(Spatial Relationship)** 를 추가적으로 분석하는 **2-Stage 추론 구조**를 설계하여 다음과 같은 실제 도로 환경 문제를 해결했습니다.
 
-## 🚀 3. 모델 훈련 (Model Training)
+* 다인 탑승 감지
+* 헬멧 미착용 감지
+* 원근 왜곡(Perspective Distortion) 대응
+* 상반신/전신 중복 검출 제거
+* 오탐(False Positive) 최소화
 
-엣지 디바이스(CCTV, 스마트 모빌리티 카메라 등)에서의 실시간 연산 가동을 목표로 가볍고 강력한 차세대 경량 아키텍처인 **YOLO26n** 모델을 선정하여 학습을 진행했습니다.
-
-* **Base Model:** `yolo26n.pt`
-* **Input Image Size (`imgsz`):** 640 $\\times$ 640 픽셀
-* **Epochs:** 50
-* **Device:** GPU (CUDA Acceleration)
-* **주요 학습 파라미터 옵션 (NMS 오탐지 방어):**
-  * `conf=0.3` (신뢰도 커트라인 조정)
-  * `iou=0.45` (중복 검출 및 상반신/전신 이중 박스 오인식 원천 차단)
+특히 본 프로젝트의 핵심은
+YOLO 기반 객체 탐지 결과를 그대로 사용하는 것이 아니라,
+후처리 단계에서 **기하학적 공간 연산 알고리즘(Geometric Spatial Filtering)** 을 적용하여 실제 위반 상황만을 정교하게 판별하는 데 있습니다.
 
 ---
 
-## 🏆 4. 최종 모델 성능 평가 지표 (Layer 1 Metrics)
+# 🏗️ System Architecture
 
-학습에 전혀 관여하지 않은 순수한 **Test 데이터셋**을 대상으로 동기화된 파라미터(`conf=0.3`, `iou=0.45`) 조건 하에 엄격한 성능 검증을 수행한 결과, 학부 캡스톤 및 포트폴리오 최상위 수준의 고정밀 지표를 달성했습니다.
+시스템은 다음과 같은 **Two-Layer 구조**로 설계되었습니다.
 
-| 성능 평가 지표 | 결과 수치 | 의미 |
-| :--- | :---: | :--- |
-| **mAP50 (종합 정확도)** | **95.92%** | 객체 탐지 모델의 표준 채점 기준으로, 4개 클래스에 대한 종합적인 박스 적중률이 매우 우수함 |
-| **Precision (정밀도)** | **88.56%** | 모델이 객체라고 예측한 것 중 진짜 정답인 비율 (가짜 경보/오탐지 최소화 능증) |
-| **Recall (재현율)** | **89.20%** | 실제 사진 속 정답 중에서 놓치지 않고 포착해낸 비율 (위반 차량 미탐지 최소화 검증) |
+```text
+Input Image
+      │
+      ▼
+┌────────────────────┐
+│ Layer 1            │
+│ YOLO26n Detection  │
+│ (Object Detection) │
+└────────────────────┘
+      │
+      ▼
+┌─────────────────────────────┐
+│ Layer 2                     │
+│ Spatial Logic Gate Engine   │
+│ - IoU Filtering             │
+│ - Foot-Point Dependency     │
+│ - Geometric Validation      │
+└─────────────────────────────┘
+      │
+      ▼
+NORMAL / VIOLATION
+```
 
 ---
 
-## 🧠 5. 핵심 알고리즘 메커니즘 (Layer 2 Logic)
+# 🧩 Layer 1 — Object Detection Engine
 
-본 프로젝트의 핵심 소프트웨어 엔지니어링 기여는 YOLO 모델이 뱉어낸 Raw 바운딩 박스 데이터를 가공하여 현실의 위반 차량을 정교하게 판별해 내는 **기하학적 2중 필터링 알고리즘**에 있습니다.
+실시간 엣지 환경(CCTV, 스마트 교통 카메라 등)에서의 동작을 고려하여
+경량 고속 모델인 **YOLO26n** 기반으로 학습을 수행했습니다.
+
+## 🔹 Detection Classes
+
+| Class ID | Label       | Description |
+| -------- | ----------- | ----------- |
+| 0        | `bare_head` | 안전모 미착용 머리  |
+| 1        | `helmet`    | 안전모 착용 상태   |
+| 2        | `human`     | 탑승자 신체      |
+| 3        | `kickboard` | 전동 킥보드      |
+
+---
+
+# 📂 Dataset & Annotation
+
+## 🔹 Annotation Tool
+
+* Roboflow 기반 고정밀 Bounding Box Annotation 수행
+
+## 🔹 Dataset Split
+
+과적합(Overfitting)을 방지하고 객관적인 성능 검증을 위해
+데이터셋을 완전히 분리하여 학습했습니다.
+
+| Dataset    | Ratio |
+| ---------- | ----- |
+| Train      | 80%   |
+| Validation | 10%   |
+| Test       | 10%   |
+
+---
+
+# 🚀 Model Training
+
+## 🔹 Training Configuration
+
+| Parameter            | Value        |
+| -------------------- | ------------ |
+| Base Model           | `yolo26n.pt` |
+| Image Size           | `640 × 640`  |
+| Epochs               | `50`         |
+| Device               | `CUDA GPU`   |
+| Confidence Threshold | `0.3`        |
+| IoU Threshold        | `0.45`       |
+
+## 🔹 Optimization Strategy
+
+### ✔ Confidence Threshold Tuning
+
+낮은 신뢰도의 노이즈 박스를 제거하여 오탐(False Positive)을 감소시킴
+
+### ✔ IoU-Based Duplicate Suppression
+
+상반신/전신 중복 박스 문제를 방지하여 실제 객체 수를 안정적으로 유지
+
+### ✔ Edge-Oriented Lightweight Inference
+
+실시간 추론 속도를 확보하기 위해 경량 아키텍처 사용
+
+---
+
+# 📊 Final Performance (Test Dataset)
+
+학습에 전혀 사용되지 않은 순수 Test Dataset 기준 성능입니다.
+
+| Metric    |      Score |
+| --------- | ---------: |
+| mAP50     | **95.92%** |
+| Precision | **88.56%** |
+| Recall    | **89.20%** |
+
+---
+
+# 🧠 Layer 2 — Spatial Logic Gate
+
+본 프로젝트의 핵심 기여(Core Contribution)는
+객체 탐지 결과를 후처리하여 실제 위반 여부를 판별하는
+**기하학 기반 공간 필터링 알고리즘**입니다.
+
+---
+
+## 🔹 Why Post-Processing is Necessary?
+
+YOLO 단독 출력만으로는 다음과 같은 문제가 발생합니다.
+
+* 사람과 킥보드가 가까이 있어도 실제 탑승 관계인지 판단 불가
+* 상반신/전신 중복 검출 발생
+* 원근 효과로 인해 겹쳐 보이는 객체 오판 가능
+* 헬멧 객체의 실제 소유자 연결 어려움
+
+이를 해결하기 위해 Layer 2 추론 엔진을 설계했습니다.
+
+---
+
+# ⚙️ Core Spatial Reasoning Algorithm
+
+## 1️⃣ IoU-Based Relationship Filtering
+
+사람(`human`)과 킥보드(`kickboard`) 간의 IoU(Intersection over Union)를 계산하여
+실제 탑승 관계인지 검증합니다.
+
+```python
+IoU = Intersection Area / Union Area
+```
+
+일정 임계값 이상의 교집합이 발생할 경우에만
+탑승자로 간주합니다.
+
+---
+
+## 2️⃣ Foot-Point Dependency Verification
+
+단순 IoU만 사용할 경우
+원근 왜곡(Perspective Distortion)에 의해 오탐지가 발생할 수 있습니다.
+
+이를 방지하기 위해 사람 Bounding Box의 하단 중심 좌표(Foot Point)가
+킥보드 영역과 논리적으로 연결되는지를 추가 검증합니다.
+
+```text
+Human Foot Point
+        │
+        ▼
+Kickboard Region
+```
+
+이 방식은:
+
+* 배경 보행자 제거
+* 원거리 객체 오탐 감소
+* 겹쳐 보이는 객체 분리
+
+에 매우 효과적입니다.
+
+---
+
+## 3️⃣ Helmet Association Logic
+
+검출된 `helmet` / `bare_head` 객체를
+탑승자(`human`)와 매칭하여 안전모 착용 여부를 판단합니다.
+
+### 판별 기준
+
+* `helmet` 존재 → 정상 탑승
+* `bare_head` 존재 → 안전모 미착용 위반
+* 다인 탑승 탐지 시 → 중복 위반 처리 가능
+
+---
+
+# ✅ Final Decision Pipeline
+
+```text
+[Detection Results]
+        │
+        ▼
+Human ↔ Kickboard Matching
+        │
+        ▼
+Spatial Validation
+(IoU + Foot Dependency)
+        │
+        ▼
+Helmet Association
+        │
+        ▼
+NORMAL / VIOLATION
+```
+
+---
+
+# 🎯 Key Contributions
+
+## ✔ 단순 객체 탐지를 넘어선 공간 추론 기반 설계
+
+기존 YOLO 출력 결과를 그대로 사용하지 않고
+공간적 관계를 수학적으로 분석하여 실제 상황을 해석
+
+## ✔ 원근 왜곡 방어 알고리즘 적용
+
+Foot-Point 기반 검증으로 CCTV 환경 오탐 최소화
+
+## ✔ Edge Device 실시간 운용 가능
+
+경량 모델 기반으로 실시간 추론 환경 고려
+
+## ✔ 실제 서비스형 구조 설계
+
+단순 연구용 모델이 아닌:
+
+* CCTV
+* 스마트 시티
+* 교통 안전 시스템
+* 공유 모빌리티 관제
+
+등 실제 서비스 적용을 고려한 파이프라인 구성
+
+---
+
+# 🛠️ Tech Stack
+
+| Category         | Stack    |
+| ---------------- | -------- |
+| Deep Learning    | YOLO26   |
+| Framework        | PyTorch  |
+| Annotation       | Roboflow |
+| Language         | Python   |
+| GPU Acceleration | CUDA     |
+| Computer Vision  | OpenCV   |
+
+---
+
+# 📈 Future Improvements
+
+* Multi-Object Tracking (MOT) 적용
+* 영상 기반 Temporal Consistency 검증
+* 야간/우천 환경 데이터 증강
+* ONNX/TensorRT 최적화
+* 실시간 스트리밍 서버 연동
+* Edge AI Deployment
+
+---
+
+# 👨‍💻 Author
+
+**PM Security Project**
+AI-Based Personal Mobility Safety Monitoring System
+
+---
