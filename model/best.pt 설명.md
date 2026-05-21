@@ -5,24 +5,6 @@
 
 ---
 
-## 📌 Overview
-
-본 프로젝트는 전동 킥보드(Personal Mobility, PM)의 안전 수칙 위반 행위를 자동으로 감지하기 위한 **AI 기반 실시간 영상 분석 시스템**입니다.
-
-단순 객체 탐지(Object Detection)에 그치지 않고,
-검출된 객체 간의 **공간적 관계(Spatial Relationship)** 를 추가적으로 분석하는 **2-Stage 추론 구조**를 설계하여 다음과 같은 실제 도로 환경 문제를 해결했습니다.
-
-* 다인 탑승 감지
-* 헬멧 미착용 감지
-* 원근 왜곡(Perspective Distortion) 대응
-* 상반신/전신 중복 검출 제거
-* 오탐(False Positive) 최소화
-
-특히 본 프로젝트의 핵심은
-YOLO 기반 객체 탐지 결과를 그대로 사용하는 것이 아니라,
-후처리 단계에서 **기하학적 공간 연산 알고리즘(Geometric Spatial Filtering)** 을 적용하여 실제 위반 상황만을 정교하게 판별하는 데 있습니다.
-
----
 
 # 🏗️ System Architecture
 
@@ -98,22 +80,6 @@ NORMAL / VIOLATION
 | Image Size           | `640 × 640`  |
 | Epochs               | `50`         |
 | Device               | `CUDA GPU`   |
-| Confidence Threshold | `0.3`        |
-| IoU Threshold        | `0.45`       |
-
-## 🔹 Optimization Strategy
-
-### ✔ Confidence Threshold Tuning
-
-낮은 신뢰도의 노이즈 박스를 제거하여 오탐(False Positive)을 감소시킴
-
-### ✔ IoU-Based Duplicate Suppression
-
-상반신/전신 중복 박스 문제를 방지하여 실제 객체 수를 안정적으로 유지
-
-### ✔ Edge-Oriented Lightweight Inference
-
-실시간 추론 속도를 확보하기 위해 경량 아키텍처 사용
 
 ---
 
@@ -263,23 +229,5 @@ Foot-Point 기반 검증으로 CCTV 환경 오탐 최소화
 | Language         | Python   |
 | GPU Acceleration | CUDA     |
 | Computer Vision  | OpenCV   |
-
----
-
-# 📈 Future Improvements
-
-* Multi-Object Tracking (MOT) 적용
-* 영상 기반 Temporal Consistency 검증
-* 야간/우천 환경 데이터 증강
-* ONNX/TensorRT 최적화
-* 실시간 스트리밍 서버 연동
-* Edge AI Deployment
-
----
-
-# 👨‍💻 Author
-
-**PM Security Project**
-AI-Based Personal Mobility Safety Monitoring System
 
 ---
