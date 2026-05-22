@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 8
+names: ['crosswalk', 'ebike_no', 'ebike_ok', 'human', 'kickboard_no', 'kickboard_ok', 'parking_zone', 'tactile_paving']
+
+roboflow:
+  workspace: s-workspace-d104g
+  project: pm-parking-87d6y
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/s-workspace-d104g/pm-parking-87d6y/dataset/1
