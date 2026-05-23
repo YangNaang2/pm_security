@@ -13,5 +13,12 @@ license = { text = "MIT" }
 dependencies = [
     "opencv-python>=4.8.0",
     "Pillow>=10.0.0",
-    "ultralytics>=8.4.0" # supports YOLO26
+    "ultralytics>=8.4.0",
+    "notebook>=7.0.0",
+    "matplotlib>=3.7.0",
+    "ipykernel>=6.0.0",
+    "transformers>=4.40.0",
+    "accelerate>=0.30.0",
+    "timm>=0.9.0",
+    "pycocotools>=2.0.7"
 ]

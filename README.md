@@ -19,12 +19,16 @@
 * **불법 주행:** 헬멧 미착용, 2인 이상 탑승 등 육안으로 식별 가능한 위험 주행
 
 ## 🚀 Quick Start
-
 ```
 conda create -n pm_security python=3.11 -y
 conda activate pm_security
-pip install .
 ```
+아래 명령어 실행 전 torch, torchvision은 사용환경에 맞게 먼저 설치해주세요.
+
+```
+pip install -e .
+```
+
 * [주행 모델 다인승 판별 알고리즘 상세 보기](docs/algorithm_logic.md)
 ## 💻 실행 방법
 
