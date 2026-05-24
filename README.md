@@ -51,8 +51,8 @@ NORMAL / VIOLATION
 
 ## 📚 상세 기술 문서 (Documentation)
 프로젝트의 세부 로직 및 성능 지표는 아래 링크를 확인해 주세요.
-* [**[Layer 1] 모델 학습 및 성능 지표 상세 보기**]([docs/model_training.md](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer1.md))
-* [**[Layer 2] 기하학 기반 공간 필터링 알고리즘 및 한계점 상세 보기**]([docs/algorithm_logic.md](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md))
+* [**[Layer 1] 모델 학습 및 성능 지표 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer1.md)
+* [**[Layer 2] 기하학 기반 공간 필터링 알고리즘 및 한계점 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md)
 
   
 ## 🚀 Quick Start
