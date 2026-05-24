@@ -21,6 +21,30 @@
 
 ## 🏗️ System Architecture (Brief) / Driving Part
 본 시스템은 단순 객체 탐지의 한계를 극복하기 위해 **Two-Layer 구조**로 설계되었습니다.
+시스템은 다음과 같은 **Two-Layer 구조**로 설계되었습니다.
+
+```text
+Input Image
+      │
+      ▼
+┌────────────────────┐
+│ Layer 1            │
+│ YOLO26n Detection  │
+│ (Object Detection) │
+└────────────────────┘
+      │
+      ▼
+┌─────────────────────────────┐
+│ Layer 2                     │
+│ Spatial Logic Gate Engine   │
+│ - IoU Filtering             │
+│ - Foot-Point Dependency     │
+│ - Geometric Validation      │
+└─────────────────────────────┘
+      │
+      ▼
+NORMAL / VIOLATION
+```
 1. **Layer 1 (Object Detection):** YOLO26n 기반 4가지 클래스(`human`, `kickboard`, `helmet`, `bare_head`) 탐지
 2. **Layer 2 (Spatial Logic Gate):** 탐지된 객체 간의 공간적 교집합(IoU) 및 원근법 종속성을 수학적으로 연산하여 최종 위반 판별
 
