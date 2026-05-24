@@ -18,6 +18,16 @@
 * **불법 주차:** 횡단보도 3m 이내, 점자블록 위, 도로 위, 지하철역 주변 등 보행 및 차량 안전을 직접 위협하는 구역
 * **불법 주행:** 헬멧 미착용, 2인 이상 탑승 등 육안으로 식별 가능한 위험 주행
 
+## 🏗️ System Architecture (Brief) / Driving Part
+본 시스템은 단순 객체 탐지의 한계를 극복하기 위해 **Two-Layer 구조**로 설계되었습니다.
+1. **Layer 1 (Object Detection):** YOLO26n 기반 4가지 클래스(`human`, `kickboard`, `helmet`, `bare_head`) 탐지
+2. **Layer 2 (Spatial Logic Gate):** 탐지된 객체 간의 공간적 교집합(IoU) 및 원근법 종속성을 수학적으로 연산하여 최종 위반 판별
+
+## 📚 상세 기술 문서 (Documentation)
+프로젝트의 세부 로직 및 성능 지표는 아래 링크를 확인해 주세요.
+* [**[Layer 1] 모델 학습 및 성능 지표 상세 보기**](docs/model_training.md)
+* [**[Layer 2] 기하학 기반 공간 필터링 알고리즘 및 한계점 상세 보기**](docs/algorithm_logic.md)
+* 
 ## 🚀 Quick Start
 ```
 conda create -n pm_security python=3.11 -y
