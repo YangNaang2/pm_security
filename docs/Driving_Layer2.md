@@ -1,6 +1,20 @@
 # 🧠 Layer 2: Spatial Logic Gate Engine
 
-본 프로젝트의 핵심 기여(Key Contribution)는 YOLO 단독 출력의 한계(원근법 왜곡, 배경 행인 오탐지 등)를 해결하기 위해, Bounding Box의 **좌표, Class, 기하학적 관계**를 종합 분석하는 룰베이스 파이프라인 설계에 있습니다.
+본 프로젝트의 핵심은 객체 탐지 결과를 후처리하여 실제 위반 여부를 판별하는 기하학 기반 공간 필터링 알고리즘입니다.
+---
+
+## 🔹 Why Post-Processing is Necessary?
+
+YOLO 단독 출력만으로는 다음과 같은 문제가 발생합니다.
+
+* 사람과 킥보드가 가까이 있어도 실제 탑승 관계인지 판단 불가
+* 상반신/전신 중복 검출 발생
+* 원근 효과로 인해 겹쳐 보이는 객체 오판 가능
+* 헬멧 객체의 실제 소유자 연결 어려움
+
+이를 해결하기 위해 Layer 2 추론 엔진을 설계했습니다.
+
+---
 
 ## 🛠️ 비정상 주행(Driving-Abnormal) 판별 로직의 진화 과정
 
@@ -27,7 +41,59 @@
 3. **정상 주행:** 위 조건에 해당하지 않는 안전한 1인 탑승 상태
 
 ---
+# ⚙️ Core Spatial Reasoning Algorithm
 
+## 1️⃣ IoU-Based Relationship Filtering
+
+사람(`human`)과 킥보드(`kickboard`) 간의 IoU(Intersection over Union)를 계산하여
+실제 탑승 관계인지 검증합니다.
+
+```python
+IoU = Intersection Area / Union Area
+```
+
+일정 임계값 이상의 교집합이 발생할 경우에만
+탑승자로 간주합니다.
+
+---
+
+## 2️⃣ Foot-Point Dependency Verification
+
+단순 IoU만 사용할 경우
+원근 왜곡(Perspective Distortion)에 의해 오탐지가 발생할 수 있습니다.
+
+이를 방지하기 위해 사람 Bounding Box의 하단 중심 좌표(Foot Point)가
+킥보드 영역과 논리적으로 연결되는지를 추가 검증합니다.
+
+```text
+Human Foot Point
+        │
+        ▼
+Kickboard Region
+```
+
+이 방식은:
+
+* 배경 보행자 제거
+* 원거리 객체 오탐 감소
+* 겹쳐 보이는 객체 분리
+
+에 매우 효과적입니다.
+
+---
+
+## 3️⃣ Helmet Association Logic
+
+검출된 `helmet` / `bare_head` 객체를
+탑승자(`human`)와 매칭하여 안전모 착용 여부를 판단합니다.
+
+### 판별 기준
+
+* `helmet` 존재 → 정상 탑승
+* `bare_head` 존재 → 안전모 미착용 위반
+* 다인 탑승 탐지 시 → 중복 위반 처리 가능
+
+---
 ## 📊 Results & Discussion (한계점 및 비즈니스 타당성)
 
 별도로 구축한 알고리즘 테스트 데이터셋(총 ??장)을 대상으로 최종 판별을 진행한 결과입니다.
