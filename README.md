@@ -47,14 +47,12 @@ NORMAL / VIOLATION
 ```
 1. **Layer 1 (Object Detection):** YOLO26n 기반 4가지 클래스(`human`, `kickboard`, `helmet`, `bare_head`) 탐지
 2. **Layer 2 (Spatial Logic Gate):** 탐지된 객체 간의 공간적 교집합(IoU) 및 원근법 종속성을 수학적으로 연산하여 최종 위반 판별
-
-
+<br><br>
 ## 📚 상세 기술 문서 (Documentation)
 프로젝트의 세부 로직 및 성능 지표는 아래 링크를 확인해 주세요.
 * [**[Layer 1] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer1.md)
 * [**[Layer 2] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md)
-
-  
+<br><br>
 ## 🚀 Quick Start
 ```
 conda create -n pm_security python=3.11 -y
@@ -65,7 +63,7 @@ conda activate pm_security
 ```
 pip install -e .
 ```
-
+<br><br>
 * [주행 모델 다인승 판별 알고리즘 상세 보기](docs/algorithm_logic.md)
 ## 💻 실행 방법
 
