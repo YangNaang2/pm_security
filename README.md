@@ -62,7 +62,6 @@ conda activate pm_security
 ```
 pip install -e .
 ```
-<br><br>
 ## 💻 실행 방법
 
 본 프로젝트의 모든 핵심 파이프라인(데이터 전처리, 추론, 정량 평가)은 Google Colab 환경에서 원클릭으로 재현할 수 있도록 주피터 노트북(`.ipynb`) 파일에 모두 통합되어 있습니다.
