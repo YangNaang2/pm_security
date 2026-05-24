@@ -18,7 +18,7 @@
 * **불법 주차:** 횡단보도 3m 이내, 점자블록 위, 도로 위, 지하철역 주변 등 보행 및 차량 안전을 직접 위협하는 구역
 * **불법 주행:** 헬멧 미착용, 2인 이상 탑승 등 육안으로 식별 가능한 위험 주행
 <br><br>
-## 🏗️ System Architecture (Brief) / Driving Part
+## 🏗️ System Architecture__Driving Part
 본 시스템은 단순 객체 탐지의 한계를 극복하기 위해 **Two-Layer 구조**로 설계되었습니다.
 시스템은 다음과 같은 **Two-Layer 구조**로 설계되었습니다.
 
