@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ['bare_head', 'helmet', 'human', 'kickboard']
+
+roboflow:
+  workspace: 2s-workspace-atjvu
+  project: 2s-workspace-atjvu
+  version: dataset
+  license: Private
+  url: https://app.roboflow.com/2s-workspace-atjvu/2s-workspace-atjvu/dataset
