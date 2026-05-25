@@ -1,4 +1,4 @@
-# 🛴 pm_security
+# 🛴 Pm_Security
 
 <p align="left">
   <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white"/>
@@ -13,11 +13,45 @@
 
 ## 📌 Project Overview
 최근 도심 내 공유 킥보드와 자전거(PM)의 무분별한 무단 방치와 불법 주행으로 인한 보행 안전 문제가 심각해지고 있습니다. 특히 한양대 에리카캠퍼스가 위치한 안산시는 경기도 내 개인형 이동장치(PM) 사고 발생 건수 1위를 기록했으며, 2026년 5월부터는 특정 구역에서는 즉시 견인 방침을 발표하기도 했습니다. 본 프로젝트는 **객체 인식**을 활용하여 <u>안전을 위협하는 고위험 불법 주차 및 주행 행위</u>를 실시간으로 탐지하고 관리하는 시스템의 프로토타입을 제안합니다.
-
+<br><br>
 ## 🎯 주요 탐지 대상
 * **불법 주차:** 횡단보도 3m 이내, 점자블록 위, 도로 위, 지하철역 주변 등 보행 및 차량 안전을 직접 위협하는 구역
 * **불법 주행:** 헬멧 미착용, 2인 이상 탑승 등 육안으로 식별 가능한 위험 주행
+<br><br>
+## 🏗️ System Architecture__Driving Part
+본 시스템은 단순 객체 탐지의 한계를 극복하기 위해 **Two-Layer 구조**로 설계되었습니다.
+시스템은 다음과 같은 **Two-Layer 구조**로 설계되었습니다.
 
+```text
+Input Image
+      │
+      ▼
+┌────────────────────┐
+│ Layer 1            │
+│ YOLO26n Detection  │
+│ (Object Detection) │
+└────────────────────┘
+      │
+      ▼
+┌─────────────────────────────┐
+│ Layer 2                     │
+│ Spatial Logic Gate Engine   │
+│ - IoU Filtering             │
+│ - Foot-Point Dependency     │
+│ - Geometric Validation      │
+└─────────────────────────────┘
+      │
+      ▼
+NORMAL / ABNORMAL
+```
+1. **Layer 1 (Object Detection):** YOLO26n 기반 4가지 클래스(`human`, `kickboard`, `helmet`, `bare_head`) 탐지
+2. **Layer 2 (Spatial Logic Gate):** 탐지된 객체 간의 공간적 교집합(IoU) 및 원근법 종속성을 수학적으로 연산하여 최종 위반 판별
+<br><br>
+## 📚 상세 기술 문서 (Documentation)
+프로젝트의 세부 로직 및 성능 지표는 아래 링크를 확인해 주세요.
+* [**[Layer 1] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer1.md)
+* [**[Layer 2] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md)
+<br><br>
 ## 🚀 Quick Start
 ```
 conda create -n pm_security python=3.11 -y
@@ -28,8 +62,6 @@ conda activate pm_security
 ```
 pip install -e .
 ```
-
-* [주행 모델 다인승 판별 알고리즘 상세 보기](docs/algorithm_logic.md)
 ## 💻 실행 방법
 
 본 프로젝트의 모든 핵심 파이프라인(데이터 전처리, 추론, 정량 평가)은 Google Colab 환경에서 원클릭으로 재현할 수 있도록 주피터 노트북(`.ipynb`) 파일에 모두 통합되어 있습니다.
