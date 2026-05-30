@@ -28,7 +28,10 @@ def convert_dataset_to_jpg(target_dir):
 if __name__ == "__main__":
     IMAGE_DIRECTORIES = [
         '../../data/raw/driving/abnormal/helmet_no/',
-        '../../data/raw/driving/abnormal/many_drivers/'
+        '../../data/raw/driving/abnormal/many_drivers/',
+        '../../data/driving_algorithm_test/abnormal/',
+        '../../data/driving_algorithm_test/normal/'
+       
     ]
     for directory in IMAGE_DIRECTORIES:
         if os.path.exists(directory):
