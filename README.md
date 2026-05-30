@@ -52,6 +52,9 @@ NORMAL / ABNORMAL
 * [**[Layer 1] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer1.md)
 * [**[Layer 2] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md)
 <br><br>
+
+<img width="700" height="464" alt="Image" src="https://github.com/user-attachments/assets/afa96444-5d9a-4980-a280-3abf98b50d06" />
+
 ## 🚀 Quick Start
 ```
 conda create -n pm_security python=3.11 -y
