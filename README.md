@@ -55,6 +55,8 @@ NORMAL / ABNORMAL
 
 <img width="700" height="464" alt="Image" src="https://github.com/user-attachments/assets/afa96444-5d9a-4980-a280-3abf98b50d06" />
 
+<img width="2560" height="1707" alt="Image" src="https://github.com/user-attachments/assets/9c219a29-4f80-441e-b731-fa86fb50ab1d" />
+
 ## 🚀 Quick Start
 ```
 conda create -n pm_security python=3.11 -y
