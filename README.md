@@ -14,11 +14,11 @@
 ## 📌 Project Overview
 최근 도심 내 공유 킥보드와 자전거(PM)의 무분별한 무단 방치와 불법 주행으로 인한 보행 안전 문제가 심각해지고 있습니다. 특히 한양대 에리카캠퍼스가 위치한 안산시는 경기도 내 개인형 이동장치(PM) 사고 발생 건수 1위를 기록했으며, 2026년 5월부터는 특정 구역에서는 즉시 견인 방침을 발표하기도 했습니다. 본 프로젝트는 **객체 인식**을 활용하여 <u>안전을 위협하는 고위험 불법 주차 및 주행 행위</u>를 실시간으로 탐지하고 관리하는 시스템의 프로토타입을 제안합니다.
 <br><br>
-## 🎯 주요 탐지 대상
+### 🎯 주요 탐지 대상
 * **불법 주차:** 횡단보도 3m 이내, 점자블록 위, 도로 위, 지하철역 주변 등 보행 및 차량 안전을 직접 위협하는 구역
 * **불법 주행:** 헬멧 미착용, 2인 이상 탑승 등 육안으로 식별 가능한 위험 주행
 <br><br>
-## 🏗️ System Architecture__Driving Part
+### 🏗️ System Architecture__Driving Part
 본 시스템은 단순 객체 탐지의 한계를 극복하기 위해 **Two-Layer 구조**로 설계되었습니다.
 시스템은 다음과 같은 **Two-Layer 구조**로 설계되었습니다.
 
@@ -67,7 +67,7 @@ conda activate pm_security
 ```
 pip install -e .
 ```
-## 💻 실행 방법
+## 💻 실행 방법__Driving Part
 
 본 프로젝트의 모든 핵심 파이프라인(데이터 전처리, 추론, 정량 평가)은 Google Colab 환경에서 원클릭으로 재현할 수 있도록 주피터 노트북(`.ipynb`) 파일에 모두 통합되어 있습니다.
 
@@ -88,3 +88,35 @@ pip install -e .
 4. **결과 시각화:** 실시간 위반 차량 적발 화면 및 최종 성능 지표(mAP, 혼동 행렬) 출력
 
 > **💡 TroubleShooting:** 만약 파일을 찾을 수 없다는 경로 에러가 발생할 경우, 노트북 최상단 셀의 구글 드라이브 복사 경로(`!cp /content/drive/MyDrive/pm_security/...`)가 본인이 실제로 드라이브에 파일을 업로드한 경로와 일치하는지 확인해 주세요.
+
+## 💻 실행 방법__Parking Part
+1) Grounding DINO의 finetuning 및 inference를 위해 필요한 코드를 clone합니다.
+```
+git clone https://github.com/longzw1997/Open-GroundingDino.git third_party/Open-GroundingDINO
+rm -rf third_party/Open-GroundingDINO/.git
+```
+
+2) 필요한 의존성을 설치합니다.
+```
+cd third_party/Open-GroundingDINO 
+pip install -r requirements.txt
+```
+
+3) CUDA 세팅 후 build합니다.
+```
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 cuda-toolkit cuda-nvcc gxx_linux-64=12 gcc_linux-64=12 -c pytorch -c nvidia -c "nvidia/label/cuda-12.1.0" -c conda-forge -y
+cd models/GroundingDINO/ops
+python setup.py build install
+python test.py
+```
+
+*프로젝트를 위해 추가된 파일은 다음과 같습니다.
+```
+config/pm_coco_odvg.json
+```
+
+*프로젝트를 위해 추가된 파일은 다음과 같습니다.
+```
+train_dist.sh
+config/cfg_odvg.py
+```

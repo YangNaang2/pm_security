@@ -1,0 +1,18 @@
+{
+  "train": [
+    {
+      "root": "../../data/labeled/parking/coco/train/",
+      "anno": "../../data/labeled/parking/coco/train/train_odvg.jsonl",
+      "label_map": "../../data/labeled/parking/coco/train/label_map.json",
+      "dataset_mode": "odvg"
+    }
+  ],
+  "val": [
+    {
+      "root": "../../data/labeled/parking/coco/valid/",
+      "anno": "../../data/labeled/parking/coco/valid/_annotations.coco.json",
+      "label_map": null,
+      "dataset_mode": "coco"
+    }
+  ]
+}
