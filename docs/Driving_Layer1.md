@@ -1,6 +1,6 @@
 # 🚀 Layer 1: Object Detection Model Training
 
-본 문서는 실시간 엣지 환경(CCTV, 스마트 교통 카메라 등)을 고려하여 구성한 **YOLO26n 기반 객체 탐지 엔진(Layer 1)**의 학습 과정과 성능 지표를 다룹니다.
+본 문서는 실시간 엣지 환경(CCTV, 스마트 교통 카메라 등)을 고려하여 구성한 <strong>YOLO26n 기반 객체 탐지 엔진(Layer 1)</strong>의 학습 과정과 성능 지표를 다룹니다.
 
 ## 📂 Dataset & Annotation
 * **Annotation Tool:** Roboflow 기반 고정밀 Bounding Box Annotation 수행
