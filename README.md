@@ -53,9 +53,9 @@ NORMAL / ABNORMAL
 * [**[Layer 2] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md)
 <br><br>
 
-<img width="700" height="464" alt="Image" src="https://github.com/user-attachments/assets/afa96444-5d9a-4980-a280-3abf98b50d06" />
+<img width="700" height="464" alt="Image" src="./assets/600485668-afa96444-5d9a-4980-a280-3abf98b50d06.png" />
 
-<img width="2560" height="1707" alt="Image" src="https://github.com/user-attachments/assets/9c219a29-4f80-441e-b731-fa86fb50ab1d" />
+<img width="2560" height="1707" alt="Image" src="./assets/600485772-9c219a29-4f80-441e-b731-fa86fb50ab1d.png" />
 
 ## 🚀 Quick Start
 ```
