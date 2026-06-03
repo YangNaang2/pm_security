@@ -49,9 +49,10 @@ NORMAL / ABNORMAL
 2. [**Layer 2 (Spatial Logic Gate)**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md): 탐지된 객체 간의 공간적 교집합(IoU) 및 원근법 종속성을 수학적으로 연산하여 최종 위반 판별
 
 ### Layer2 Abnormal 탐지 결과 이미지
-<img width="48%" alt="Image" src="./assets/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202026-06-01%20175018.png" />
-
-<img width="48%" alt="Image" src="./assets/600485772-9c219a29-4f80-441e-b731-fa86fb50ab1d.png" />
+<p align=center width="100%">
+  <img width="40.5%" alt="Image" src="./assets/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202026-06-01%20175018.png" />
+  <img width="58%" alt="Image" src="./assets/600485772-9c219a29-4f80-441e-b731-fa86fb50ab1d.png" />
+</p>
 
 ### 🏗️ System Architecture__Parking Part
  
@@ -83,9 +84,10 @@ ok / no 클래스로 위반 즉시 판별
 
 ### 탐지 결과 이미지
 
-<img width="49%" alt="Image" src="./assets/parking_result1.jpg" />
-
-<img width="49%" alt="Image" src="./assets/parking_result2.jpg" />
+<p align=center width="100%">
+  <img width="70%" alt="Image" src="./assets/parking_result1.jpg" />
+  <img width="28%" alt="Image" src="./assets/parking_result2.jpg" />
+</p>
 
 > **⚠️ 한계:** 현재 데이터 수 부족 및 일부 품질 이슈로 인해 특정 케이스에서 오탐이 발생합니다. 현재의 모델은 개념을 구현한 프로토타입이며, 충분한 데이터 학습 및 탐지 로직 개선이 필요합니다.
  
@@ -198,7 +200,8 @@ CUDA_VISIBLE_DEVICES=0 python demo/inference_on_dir.py \
 -p ../../model/parking/best_gdino.pth \
 -i ../../data/final_test/parking \
 -o logs/final_test \
--t "kickboards parked in wrong ways."
+-t "crosswalk . ebike no . ebike ok . kickboard no . kickboard ok . parking zone . tactile paving . kickboards parked in wrong ways."
 ```
 - 학습된 가중치로 이미지에 대해 추론을 실행합니다.
 - 탐지된 클래스(`kickboard_ok`/`kickboard_no`, `ebike_ok`/`ebike_no`)가 곧 위반 판별 결과입니다.
+- wrong이 포함된 키워드를 추가하여 보다 유연한 클래스를 찾을 수 있습니다. wrong이 포함된 클래스에 대한 탐지는 Abnormal로 표시됩니다.
