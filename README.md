@@ -186,6 +186,11 @@ cd third_party/GroundingDINO
 python -m pip install --no-build-isolation -e .
 ```
 
+- 프로젝트를 위해 추가한 파일은 다음과 같습니다.
+```
+  demo/inference_on_dir.py
+```
+
 - 추론
 ```bash
 CUDA_VISIBLE_DEVICES=0 python demo/inference_on_dir.py \
