@@ -143,7 +143,7 @@ echo $CUDA_HOME  # export 확인
 pip install -e .
 ```
 
-### Step 1. Finetuning
+### Step 2. Finetuning
 - Open-GroundingDINO 의존성 설치
 ```bash
 cd third_party/Open-GroundingDINO
@@ -178,7 +178,7 @@ bash train_dist.sh 1 config/cfg_odvg.py config/pm_coco_odvg.json ./logs 2>&1 | t
 - 학습 후 생성되는 로그 파일: ```logs/train_open_gdino.log```
 - 학습 로그 시각화 예시: ```logs/train_progress.png```
 
-### Step 4. Inference
+### Step 3. Inference
 
 - GroundingDINO 의존성 설치
 ```bash
