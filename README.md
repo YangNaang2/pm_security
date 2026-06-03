@@ -11,7 +11,7 @@
 
 > 객체인식을 활용한 개인형 이동장치(PM)의 불법주차 및 불법주행 자동 단속 시스템
 
-## 📌 Project Overview
+## 📖 Project Overview
 최근 도심 내 공유 킥보드와 자전거(PM)의 무분별한 무단 방치와 불법 주행으로 인한 보행 안전 문제가 심각해지고 있습니다. 특히 한양대 에리카캠퍼스가 위치한 안산시는 경기도 내 개인형 이동장치(PM) 사고 발생 건수 1위를 기록했으며, 2026년 5월부터는 특정 구역에서는 즉시 견인 방침을 발표하기도 했습니다. 본 프로젝트는 **객체 인식**을 활용하여 <u>안전을 위협하는 고위험 불법 주차 및 주행 행위</u>를 실시간으로 탐지하고 관리하는 시스템의 프로토타입을 제안합니다.
 
 
@@ -117,7 +117,7 @@ ok / no 클래스로 위반 즉시 판별
 
 주차 탐지 기능의 학습에 [Open-GroundingDINO](), 추론에 [GroundingDINO]()를 사용했습니다.
 
-### Step 1. 의존성 설치
+### 📌 Step 1. 의존성 설치
 - 가상환경 생성
 ```bash
 conda create -n pm_security python=3.11 -y
@@ -143,7 +143,7 @@ echo $CUDA_HOME  # export 확인
 pip install -e .
 ```
 
-### Step 2. Finetuning
+### 📌 Step 2. Finetuning
 - Open-GroundingDINO 의존성 설치
 ```bash
 cd third_party/Open-GroundingDINO
@@ -178,7 +178,7 @@ bash train_dist.sh 1 config/cfg_odvg.py config/pm_coco_odvg.json ./logs 2>&1 | t
 - 학습 후 생성되는 로그 파일: ```logs/train_open_gdino.log```
 - 학습 로그 시각화 예시: ```logs/train_progress.png```
 
-### Step 3. Inference
+### 📌 Step 3. Inference
 
 - GroundingDINO 의존성 설치
 ```bash
