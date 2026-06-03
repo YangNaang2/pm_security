@@ -172,7 +172,7 @@ python test.py
 
 - 학습 실행
 ```bash
-bash train_dist.sh 1 config/cfg_odvg.py config/pm_coco_odvg.json ./logs 2>&1 | tee ./train_open_gdino.log
+bash train_dist.sh 1 config/cfg_odvg.py config/pm_coco_odvg.json ./logs 2>&1 | tee log/train_open_gdino.log
 ```
 
 - 학습 후 생성되는 로그 파일: ```logs/train_open_gdino.log```
