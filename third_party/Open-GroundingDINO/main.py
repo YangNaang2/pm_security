@@ -23,6 +23,8 @@ from engine import evaluate, train_one_epoch
 
 from groundingdino.util.utils import clean_state_dict
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Set transformer detector', add_help=False)

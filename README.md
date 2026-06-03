@@ -14,6 +14,8 @@
 ## 📌 Project Overview
 최근 도심 내 공유 킥보드와 자전거(PM)의 무분별한 무단 방치와 불법 주행으로 인한 보행 안전 문제가 심각해지고 있습니다. 특히 한양대 에리카캠퍼스가 위치한 안산시는 경기도 내 개인형 이동장치(PM) 사고 발생 건수 1위를 기록했으며, 2026년 5월부터는 특정 구역에서는 즉시 견인 방침을 발표하기도 했습니다. 본 프로젝트는 **객체 인식**을 활용하여 <u>안전을 위협하는 고위험 불법 주차 및 주행 행위</u>를 실시간으로 탐지하고 관리하는 시스템의 프로토타입을 제안합니다.
 
+
+
 ### 🎯 주요 탐지 대상
 * **불법 주차:** 횡단보도 3m 이내, 점자블록 위, 도로 위, 지하철역 주변 등 보행 및 차량 안전을 직접 위협하는 구역
 * **불법 주행:** 헬멧 미착용, 2인 이상 탑승 등 육안으로 식별 가능한 위험 주행
@@ -61,7 +63,7 @@ Input Image
       ▼
 ┌──────────────────────────────────┐
 │ Grounding DINO (finetuned)       │
-│ BERT + DINO-T pretrained weights │
+│ BERT + GDINO-T pretrained weight │
 │                                  │
 │ Classes:                         │
 │  구역: crosswalk, tactile_paving │
@@ -113,7 +115,7 @@ ok / no 클래스로 위반 즉시 판별
 
 ## 💻 실행 방법__Parking Part
 
-주차 탐지 기능의 학습 및 추론은 오픈소스 코드를 주로 활용했습니다.
+주차 탐지 기능의 학습에 [Open-GroundingDINO](), 추론에 [GroundingDINO]()를 사용했습니다.
 
 ### Step 1. 의존성 설치
 - 가상환경 생성
@@ -142,8 +144,7 @@ pip install -e .
 ```
 
 ### Step 1. Finetuning
-
-Open-GroundingDINO 의존성 설치
+- Open-GroundingDINO 의존성 설치
 ```bash
 cd third_party/Open-GroundingDINO
 pip install -r requirements.txt
@@ -153,24 +154,46 @@ python setup.py build install
 python test.py
 ```
 
-[bert-base-uncased]() 및 [gdinot-1.8m-odvg]() 모델을 사용하여 8개 클래스를 학습합니다.
+- [GroundingDINO-T
+(pretrain)](https://github.com/longzw1997/Open-GroundingDino/releases/download/v0.1.0/gdinot-1.8m-odvg.pth) 모델을 다운로드 후 weights 디렉토리에 저장합니다.
+- [BERT](https://huggingface.co/bert-base-uncased) 모델이 사용됩니다. 해당 모델은 온라인 환경에서 코드를 통해 다운로드됩니다.
+
+- 프로젝트를 위해 추가한 파일은 다음과 같습니다.
 ```
-프로젝트에 추가된 파일:
   config/pm_coco_odvg.json   ← 데이터셋 설정
-  train_dist.sh              ← 분산 학습 실행 스크립트
+  logs/plot_graph.py         ← 학습 로그 시각화
+```
+
+- 프로젝트를 위해 수정한 파일은 다음과 같습니다.
+```
+  train_dist.sh              ← 학습 실행 스크립트
   config/cfg_odvg.py         ← 학습 파라미터 설정
 ```
- 
+
+- 학습 실행
 ```bash
-bash train_dist.sh
+bash train_dist.sh 1 config/cfg_odvg.py config/pm_coco_odvg.json ./logs 2>&1 | tee ./train_open_gdino.log
 ```
+
+- 학습 후 생성되는 로그 파일: ```logs/train_open_gdino.log```
+- 학습 로그 시각화 예시: ```logs/train_progress.png```
 
 ### Step 4. Inference
 
-GroundingDINO 의존성 설치
+- GroundingDINO 의존성 설치
 ```bash
 cd third_party/GroundingDINO
 python -m pip install --no-build-isolation -e .
 ```
- 
-학습된 가중치로 이미지에 대해 추론을 실행합니다. 탐지된 클래스(`kickboard_ok`/`kickboard_no`, `ebike_ok`/`ebike_no` 등)가 곧 위반 판별 결과입니다.
+
+- 추론
+```bash
+CUDA_VISIBLE_DEVICES=0 python demo/inference_on_dir.py \
+-c weights/config_cfg.py \
+-p weights/checkpoint_best_regular.pth \
+-i test_data \
+-o logs/test_data \
+-t "crosswalk . ebike no . ebike ok . kickboard no . kickboard ok . parking zone . tactile paving ."
+```
+- 학습된 가중치로 이미지에 대해 추론을 실행합니다.
+- 탐지된 클래스(`kickboard_ok`/`kickboard_no`, `ebike_ok`/`ebike_no`)가 곧 위반 판별 결과입니다.
