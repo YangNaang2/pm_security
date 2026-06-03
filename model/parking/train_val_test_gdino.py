@@ -1,16 +1,17 @@
+# huggingface API 사용해서 학습 시도: 해당 API는 finetuning을 공식 제공x, 파인튜닝 안됨
+
 import os
 import json
 import torch
 from torch.utils.data import DataLoader, Dataset
-from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
+from transformers import AutoProcessor, AutoModelForObjectDetection
 from torch.optim import AdamW
 from tqdm import tqdm
 from PIL import Image
 
 BASE_DIR = "../../data/labeled/parking/coco"
 MODEL_ID = "IDEA-Research/grounding-dino-base"
-BATCH_SIZE = 1
-ACCUMULATION_STEPS = 4
+BATCH_SIZE = 4
 EPOCHS = 5
 LEARNING_RATE = 2e-5
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -68,78 +69,88 @@ def collate_fn(batch):
         anns = item["annotations"]
         img_dir = item["img_dir"]
         
-        img_path = os.path.join(img_dir, img_info["file_name"])
+        file_name = img_info["file_name"]
+        img_path = os.path.join(img_dir, file_name)
+        
         try:
             img = Image.open(img_path).convert("RGB")
             w, h = img.size
         except FileNotFoundError:
             continue
+
         if len(anns) == 0:
             continue
 
         normalized_boxes = []
-        class_labels = []
+        text_labels = []
         
         for ann in anns:
-            box = ann["bbox"]
+            box = ann["bbox"] # [x_min, y_min, width, height]
             cat_id = ann["category_id"]
             
-            cx = min(max((box[0] + box[2] / 2) / w, 0.0), 1.0)
-            cy = min(max((box[1] + box[3] / 2) / h, 0.0), 1.0)
-            nw = min(max(box[2] / w, 0.0), 1.0)
-            nh = min(max(box[3] / h, 0.0), 1.0)
+            cx = (box[0] + box[2] / 2) / w
+            cy = (box[1] + box[3] / 2) / h
+            nw = box[2] / w
+            nh = box[3] / h
+            
+            cx = min(max(cx, 0.0), 1.0)
+            cy = min(max(cy, 0.0), 1.0)
+            nw = min(max(nw, 0.0), 1.0)
+            nh = min(max(nh, 0.0), 1.0)
             
             normalized_boxes.append([cx, cy, nw, nh])
-            class_labels.append(category_names.index(id_to_name_map[cat_id]))  # phrase index
+            text_labels.append(id_to_name_map[cat_id])
             
         images.append(img)
         targets.append({
             "boxes": torch.tensor(normalized_boxes, dtype=torch.float32),
-            "class_labels": torch.tensor(class_labels, dtype=torch.long)
+            "class_labels": text_labels
         })
 
     if len(images) == 0:
         return None
 
     inputs = processor(
-        images=images,
-        text=[TEXT_PROMPT] * len(images),
-        return_tensors="pt",
+        images=images, 
+        text=[TEXT_PROMPT] * len(images), 
+        boxes=[t["boxes"] for t in targets],
+        class_labels=[t["class_labels"] for t in targets],
+        return_tensors="pt", 
         padding=True
     )
-    inputs["labels"] = targets
+    
     return inputs
 
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_fn)
 valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn)
 
-model = AutoModelForZeroShotObjectDetection.from_pretrained(MODEL_ID)
+model = AutoModelForObjectDetection.from_pretrained(MODEL_ID)
 model.to(DEVICE)
 optimizer = AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4)
 
 def train_epoch(model, dataloader, optimizer):
     model.train()
     total_loss = 0
-    optimizer.zero_grad()
-    
-    for i, batch in enumerate(tqdm(dataloader, desc="⚡ Training")):
+    for batch in tqdm(dataloader, desc="⚡ Training"):
         if batch is None: continue
         
-        inputs = {k: v.to(DEVICE) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
-        if "labels" in batch:
-            inputs["labels"] = [{tk: tv.to(DEVICE) for tk, tv in t.items()} for t in batch["labels"]]
+        inputs = {}
+        for k, v in batch.items():
+            if isinstance(v, torch.Tensor):
+                inputs[k] = v.to(DEVICE)
+            elif k == "labels":
+                inputs[k] = [{tk: tv.to(DEVICE) for tk, tv in t.items()} for t in v]
         
         outputs = model(**inputs)
-        loss = outputs.loss / ACCUMULATION_STEPS
-        loss.backward()
+        loss = outputs.loss if hasattr(outputs, 'loss') else outputs[0]
         
-        if (i + 1) % ACCUMULATION_STEPS == 0:
-            optimizer.step()
+        if loss is not None and isinstance(loss, torch.Tensor):
             optimizer.zero_grad()
-        
-        total_loss += loss.item() * ACCUMULATION_STEPS
-        
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+            
     return total_loss / len(dataloader)
 
 def evaluate(model, dataloader, phase="Validation"):

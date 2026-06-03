@@ -201,3 +201,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 model/parking/gdino/
+third_party/*/weights
+third_party/GroundingDINO/logs
+third_party/GroundingDINO/test*
+*.pth
