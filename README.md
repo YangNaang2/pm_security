@@ -13,14 +13,13 @@
 
 ## 📌 Project Overview
 최근 도심 내 공유 킥보드와 자전거(PM)의 무분별한 무단 방치와 불법 주행으로 인한 보행 안전 문제가 심각해지고 있습니다. 특히 한양대 에리카캠퍼스가 위치한 안산시는 경기도 내 개인형 이동장치(PM) 사고 발생 건수 1위를 기록했으며, 2026년 5월부터는 특정 구역에서는 즉시 견인 방침을 발표하기도 했습니다. 본 프로젝트는 **객체 인식**을 활용하여 <u>안전을 위협하는 고위험 불법 주차 및 주행 행위</u>를 실시간으로 탐지하고 관리하는 시스템의 프로토타입을 제안합니다.
-<br><br>
+
 ### 🎯 주요 탐지 대상
 * **불법 주차:** 횡단보도 3m 이내, 점자블록 위, 도로 위, 지하철역 주변 등 보행 및 차량 안전을 직접 위협하는 구역
 * **불법 주행:** 헬멧 미착용, 2인 이상 탑승 등 육안으로 식별 가능한 위험 주행
-<br><br>
+
 ### 🏗️ System Architecture__Driving Part
-본 시스템은 단순 객체 탐지의 한계를 극복하기 위해 **Two-Layer 구조**로 설계되었습니다.
-시스템은 다음과 같은 **Two-Layer 구조**로 설계되었습니다.
+주행 탐지 시스템은 단순 객체 탐지의 한계를 극복하기 위해 **Two-Layer 구조**로 설계되었습니다.
 
 ```text
 Input Image
@@ -44,32 +43,55 @@ Input Image
       ▼
 NORMAL / ABNORMAL
 ```
-1. **Layer 1 (Object Detection):** YOLO26n 기반 4가지 클래스(`human`, `kickboard`, `helmet`, `bare_head`) 탐지
-2. **Layer 2 (Spatial Logic Gate):** 탐지된 객체 간의 공간적 교집합(IoU) 및 원근법 종속성을 수학적으로 연산하여 최종 위반 판별
-<br><br>
-## 📚 상세 기술 문서 (Documentation)
-프로젝트의 세부 로직 및 성능 지표는 아래 링크를 확인해 주세요.
-* [**[Layer 1] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer1.md)
-* [**[Layer 2] 상세 보기**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md)
-<br><br>
+1. [**Layer 1 (Object Detection)**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer1.md): YOLO26n 기반 4가지 클래스(`human`, `kickboard`, `helmet`, `bare_head`) 탐지
+2. [**Layer 2 (Spatial Logic Gate)**](https://github.com/tensor-programming-2026/pm_security/blob/main/docs/Driving_Layer2.md): 탐지된 객체 간의 공간적 교집합(IoU) 및 원근법 종속성을 수학적으로 연산하여 최종 위반 판별
+
 ### Layer2 Abnormal 탐지 결과 이미지
-<img width="49%" alt="Image" src="./assets/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202026-06-01%20175018.png" />
+<img width="48%" alt="Image" src="./assets/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202026-06-01%20175018.png" />
 
-<img width="49%" alt="Image" src="./assets/600485772-9c219a29-4f80-441e-b731-fa86fb50ab1d.png" />
+<img width="48%" alt="Image" src="./assets/600485772-9c219a29-4f80-441e-b731-fa86fb50ab1d.png" />
 
-## 🚀 Quick Start
+### 🏗️ System Architecture__Parking Part
+ 
+주차 위반은 구역과 PM 상태를 **하나의 모델이 동시에 판단**하도록 설계했습니다. Grounding DINO(Tiny)를 8개 클래스로 파인튜닝하여, 탐지 클래스 자체가 곧 위반 판별 결과가 됩니다.
+ 
+```text
+Input Image
+      │
+      ▼
+┌──────────────────────────────────┐
+│ Grounding DINO (finetuned)       │
+│ BERT + DINO-T pretrained weights │
+│                                  │
+│ Classes:                         │
+│  구역: crosswalk, tactile_paving │
+│        parking_zone              │
+│  PM:   kickboard_ok / _no        │
+│        ebike_ok / _no            │
+│  기타: human                     │
+└──────────────────────────────────┘
+      │
+      ▼
+ok / no 클래스로 위반 즉시 판별
 ```
-conda create -n pm_security python=3.11 -y
-conda activate pm_security
-```
-아래 명령어 실행 전 torch, torchvision은 사용환경에 맞게 먼저 설치해주세요.
+ 
+- `crosswalk`, `tactile_paving`: 보행 안전을 위협하는 금지 구역
+- `parking_zone`: 주차 허용 구역 (단, 금지 구역 인접으로 인한 경계 케이스 존재)
+- `kickboard_ok` / `kickboard_no`, `ebike_ok` / `ebike_no`: 정상/위반 상태가 클래스에 내재화
 
-```
-pip install -e .
-```
+### 탐지 결과 이미지
+
+<img width="49%" alt="Image" src="./assets/parking_result1.jpg" />
+
+<img width="49%" alt="Image" src="./assets/parking_result2.jpg" />
+
+> **⚠️ 한계:** ok/no 판별은 학습 데이터의 라벨링 품질에 의존합니다. 현재 데이터 수 부족 및 일부 품질 이슈로 인해 특정 케이스에서 오탐이 발생할 수 있으며, 이는 향후 데이터 확충을 통해 개선할 수 있는 지점입니다.
+ 
+---
+
 ## 💻 실행 방법__Driving Part
 
-본 프로젝트의 모든 핵심 파이프라인(데이터 전처리, 추론, 정량 평가)은 Google Colab 환경에서 원클릭으로 재현할 수 있도록 주피터 노트북(`.ipynb`) 파일에 모두 통합되어 있습니다.
+주행 탐지 기능의 모든 핵심 파이프라인(데이터 전처리, 추론, 정량 평가)은 Google Colab 환경에서 원클릭으로 재현할 수 있도록 주피터 노트북(`.ipynb`) 파일에 모두 통합되어 있습니다.
 
 ### 📌 Step 1. 사전 데이터 준비
 1. 학습이 완료된 모델 가중치 파일(`best.pt`)과 이미지 데이터셋 압축 파일(`dataset_3.yolo26.zip`)을 다운로드합니다.
@@ -90,33 +112,65 @@ pip install -e .
 > **💡 TroubleShooting:** 만약 파일을 찾을 수 없다는 경로 에러가 발생할 경우, 노트북 최상단 셀의 구글 드라이브 복사 경로(`!cp /content/drive/MyDrive/pm_security/...`)가 본인이 실제로 드라이브에 파일을 업로드한 경로와 일치하는지 확인해 주세요.
 
 ## 💻 실행 방법__Parking Part
-1) Grounding DINO의 finetuning 및 inference를 위해 필요한 코드를 clone합니다.
-```
-git clone https://github.com/longzw1997/Open-GroundingDino.git third_party/Open-GroundingDINO
-rm -rf third_party/Open-GroundingDINO/.git
+
+주차 탐지 기능의 학습 및 추론은 오픈소스 코드를 주로 활용했습니다.
+
+### Step 1. 의존성 설치
+- 가상환경 생성
+```bash
+conda create -n pm_security python=3.11 -y
+conda activate pm_security
 ```
 
-2) 필요한 의존성을 설치합니다.
+- CUDA 세팅
+```bash
+conda install -c "nvidia/label/cuda-12.1.0" cuda-toolkit cuda-nvcc
+pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cu121
+conda install -c conda-forge gxx_linux-64=12 gcc_linux-64=12 -y
+
+which nvcc # 이때 확인된 nvcc의 bin 상위 디렉토리를 CUDA_HOME에 등록 (예: /usr/local/cuda/bin/nvcc → CUDA_HOME=/usr/local/cuda)
+
+echo 'export CUDA_HOME=/path/to/cuda' >> ~/.bashrc
+source ~/.bashrc
+conda activate gdino # source하면서 자동으로 deactivate되므로 다시 활성화
+echo $CUDA_HOME  # export 확인
 ```
-cd third_party/Open-GroundingDINO 
+
+- 프로젝트 기본 라이브러리 설치
+```bash
+pip install -e .
+```
+
+### Step 1. Finetuning
+
+Open-GroundingDINO 의존성 설치
+```bash
+cd third_party/Open-GroundingDINO
 pip install -r requirements.txt
-```
 
-3) CUDA 세팅 후 build합니다.
-```
-conda install pytorch torchvision torchaudio pytorch-cuda=12.1 cuda-toolkit cuda-nvcc gxx_linux-64=12 gcc_linux-64=12 -c pytorch -c nvidia -c "nvidia/label/cuda-12.1.0" -c conda-forge -y
 cd models/GroundingDINO/ops
 python setup.py build install
 python test.py
 ```
 
-*프로젝트를 위해 추가된 파일은 다음과 같습니다.
+[bert-base-uncased]() 및 [gdinot-1.8m-odvg]() 모델을 사용하여 8개 클래스를 학습합니다.
 ```
-config/pm_coco_odvg.json
+프로젝트에 추가된 파일:
+  config/pm_coco_odvg.json   ← 데이터셋 설정
+  train_dist.sh              ← 분산 학습 실행 스크립트
+  config/cfg_odvg.py         ← 학습 파라미터 설정
+```
+ 
+```bash
+bash train_dist.sh
 ```
 
-*프로젝트를 위해 추가된 파일은 다음과 같습니다.
+### Step 4. Inference
+
+GroundingDINO 의존성 설치
+```bash
+cd third_party/GroundingDINO
+python -m pip install --no-build-isolation -e .
 ```
-train_dist.sh
-config/cfg_odvg.py
-```
+ 
+학습된 가중치로 이미지에 대해 추론을 실행합니다. 탐지된 클래스(`kickboard_ok`/`kickboard_no`, `ebike_ok`/`ebike_no` 등)가 곧 위반 판별 결과입니다.
