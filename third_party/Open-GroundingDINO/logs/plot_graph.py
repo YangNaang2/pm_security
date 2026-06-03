@@ -1,13 +1,41 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 import matplotlib
+
 matplotlib.use('Agg')
 
-epochs = list(range(15))
-train_loss = [43.6547, 38.7042, 36.6193, 34.5717, 32.1582, 31.6135, 30.9209, 30.7558, 30.2526, 30.1406, 30.0898, 30.2461, 30.1864, 30.5137, 30.1799]
-map_50_95 = [0.202, 0.229, 0.191, 0.255, 0.284, 0.242, 0.295, 0.239, 0.284, 0.296, 0.290, 0.297, 0.300, 0.288, 0.293]
-map_50 = [0.407, 0.459, 0.389, 0.463, 0.563, 0.509, 0.564, 0.504, 0.566, 0.579, 0.571, 0.581, 0.581, 0.572, 0.580]
+log_file_path = 'train_open_gdino.log'
+
+epochs = []
+train_loss = []
+map_50 = []
+map_50_95 = []
+
+with open(log_file_path, 'r', encoding='utf-8') as f:
+    lines = f.readlines()
+
+for line in lines:
+    if "Averaged stats:" in line and "loss:" in line:
+        parts = line.split("loss:")
+        if len(parts) > 1:
+            loss_part = parts[1].split("(")[1].split(")")[0]
+            train_loss.append(float(loss_part.strip()))
+            
+    if "Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ]" in line:
+        val = float(line.split('=')[-1].strip())
+        map_50_95.append(val)
+        
+    elif "Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ]" in line:
+        val = float(line.split('=')[-1].strip())
+        map_50.append(val)
+
+num_epochs = len(train_loss)
+map_50 = map_50[:num_epochs]
+map_50_95 = map_50_95[:num_epochs]
+
+epochs = list(range(num_epochs))
+
+print(f"📊 로그 분석 완료! (Epoch 수: {len(epochs)}, Loss: {len(train_loss)}개, mAP50: {len(map_50)}개, mAP95: {len(map_50_95)}개)")
 
 sns.set_theme(style="whitegrid")
 fig, ax1 = plt.subplots(figsize=(11, 6))
@@ -31,9 +59,9 @@ lines = line1 + line2 + line3
 labels = [l.get_label() for l in lines]
 ax1.legend(lines, labels, loc='center right', frameon=True, facecolor='white', edgecolor='none')
 
-plt.title('Open-GroundingDINO Training Progress (Total Time: 1h 10m)', fontsize=14, fontweight='bold', pad=15)
+plt.title('Open-GroundingDINO Training', fontsize=14, fontweight='bold', pad=15)
 fig.tight_layout()
 
-output_path = './training_progress_graph.png'
+output_path = './train_graph.png'
 plt.savefig(output_path, dpi=300)
 print(f"🎉 graph saved: {output_path}")
