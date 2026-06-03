@@ -117,7 +117,7 @@ ok / no 클래스로 위반 즉시 판별
 
 ## 💻 실행 방법__Parking Part
 
-주차 탐지 기능의 학습에 [Open-GroundingDINO](), 추론에 [GroundingDINO]()를 사용했습니다.
+주차 탐지 기능의 학습에 [Open-GroundingDINO](https://github.com/longzw1997/Open-GroundingDino), 추론에 [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)를 사용했습니다.
 
 ### 📌 Step 1. 의존성 설치
 - 가상환경 생성
