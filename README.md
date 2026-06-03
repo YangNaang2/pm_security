@@ -194,11 +194,11 @@ python -m pip install --no-build-isolation -e .
 - 추론
 ```bash
 CUDA_VISIBLE_DEVICES=0 python demo/inference_on_dir.py \
--c weights/config_cfg.py \
--p weights/checkpoint_best_regular.pth \
--i test_data \
--o logs/test_data \
--t "crosswalk . ebike no . ebike ok . kickboard no . kickboard ok . parking zone . tactile paving ."
+-c ../../model/parking/gdino_config.py \
+-p ../../model/parking/best_gdino.pth \
+-i ../../data/final_test/parking \
+-o logs/final_test \
+-t "kickboards parked in wrong ways."
 ```
 - 학습된 가중치로 이미지에 대해 추론을 실행합니다.
 - 탐지된 클래스(`kickboard_ok`/`kickboard_no`, `ebike_ok`/`ebike_no`)가 곧 위반 판별 결과입니다.

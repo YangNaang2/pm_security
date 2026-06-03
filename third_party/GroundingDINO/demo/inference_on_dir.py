@@ -19,17 +19,17 @@ from torchvision.ops import nms
 
 
 CLASS_COLORS = {
-    "kickboard_no":   (220, 50,  50),   # red
-    "ebike_no":       (220, 50,  50),   # red
-    "kickboard_ok":   (50,  180, 80),   # green
-    "ebike_ok":       (50,  180, 80),   # green
-    "crosswalk":      (220, 180, 0),    # yellow
-    "tactile_paving": (220, 180, 0),    # yellow
-    "parking_zone":   (30,  150, 200),  # blue
-    "human":          (120, 120, 120),  # gray
+    "kickboard_no":     (220, 50,  50),   # red
+    "ebike_no":         (220, 50,  50),   # red
+    "kickboard_ok":     (50,  180, 80),   # green
+    "ebike_ok":         (50,  180, 80),   # green
+    "crosswalk":        (220, 180, 0),    # yellow
+    "tactile_paving":   (220, 180, 0),    # yellow
+    "parking_zone":     (30,  150, 200),  # blue
+    "human":            (120, 120, 120),  # gray
 }
 DEFAULT_COLOR = (200, 200, 200)
-FONT_SIZE = 30
+FONT_SIZE = 40
 
 def get_class_name(label: str) -> str:
     return label.split("(")[0].strip()
@@ -37,6 +37,8 @@ def get_class_name(label: str) -> str:
 
 def get_color(label: str):
     cls = get_class_name(label)
+    if cls == "Abnormal":
+        cls = "kickboard_no"
     cls_normalized = cls.replace(" ", "_")
     for key, color in CLASS_COLORS.items():
         if key in cls_normalized or cls_normalized in key:
@@ -192,20 +194,21 @@ if __name__ == "__main__":
     parser.add_argument("--cpu-only", action="store_true")
     args = parser.parse_args()
 
-    os.makedirs(args.output_dir, exist_ok=True)
+    input_path = Path(args.input_dir)
+    output_path = Path(args.output_dir)
+
+    if not input_path.exists() or not input_path.is_dir():
+        print(f"❌ Error: {args.input_dir} is not a valid directory")
+        sys.exit(1)
 
     valid_extensions = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
-    input_path = Path(args.input_dir)
-    if not input_path.exists() or not input_path.is_dir():
-        print(f"❌ Error: {args.input_dir}")
-        sys.exit(1)
-
-    image_paths = [p for p in input_path.iterdir() if p.suffix.lower() in valid_extensions]
+    image_paths = [p for p in input_path.rglob("*") if p.suffix.lower() in valid_extensions and p.is_file()]
+    
     if not image_paths:
-        print(f"❌ Error: no images in {args.input_dir}")
+        print(f"❌ Error: no images found in {args.input_dir} or its subdirectories")
         sys.exit(1)
 
-    print(f"📦 Images: {len(image_paths)}")
+    print(f"📦 Total Images Found: {len(image_paths)}")
     model = load_model(args.config_file, args.checkpoint_path, cpu_only=args.cpu_only)
 
     token_spans = args.token_spans
@@ -213,8 +216,11 @@ if __name__ == "__main__":
 
     for img_path_obj in tqdm(image_paths, desc="Batch Processing"):
         img_path = str(img_path_obj)
-        filename = img_path_obj.name
         stem_name = img_path_obj.stem
+
+        relative_path = img_path_obj.relative_to(input_path)
+        current_output_dir = output_path / relative_path.parent
+        current_output_dir.mkdir(parents=True, exist_ok=True)
 
         try:
             image_pil, image = load_image(img_path)
@@ -225,11 +231,6 @@ if __name__ == "__main__":
             )
 
             size = image_pil.size
-            pred_dict = {
-                "boxes": boxes_filt,
-                "size": [size[1], size[0]],
-                "labels": pred_phrases,
-            }
             
             if len(boxes_filt) > 0:
                 # cxcywh → xyxy 변환
@@ -248,13 +249,20 @@ if __name__ == "__main__":
 
                 keep = nms(boxes_xyxy, scores, iou_threshold=0.5)
                 boxes_filt = boxes_filt[keep]
-                pred_phrases = [pred_phrases[i] for i in keep]
+                pred_phrases = ["Abnormal" if "wrong" in p.lower() or "no" in p.lower() else "Normal" for p in pred_phrases]
+
+            # NMS 처리가 끝난 최종 boxes_filt와 pred_phrases를 pred_dict에 반영
+            pred_dict = {
+                "boxes": boxes_filt,
+                "size": [size[1], size[0]],
+                "labels": pred_phrases,
+            }
 
             image_with_box, _ = plot_boxes_to_image(image_pil, pred_dict)
-            output_file_name = f"res_{stem_name}.jpg"
-            image_with_box.save(os.path.join(args.output_dir, output_file_name))
+            output_file_path = current_output_dir / f"res_{stem_name}.jpg"
+            image_with_box.save(output_file_path)
 
         except Exception as e:
-            print(f"\n⚠️ Skip -> {filename}: {e}")
+            print(f"\n⚠️ Skip -> {img_path_obj.name}: {e}")
 
-    print(f"\n🎉 Done -> '{args.output_dir}'")
+    print(f"\n🎉 Done! Check '{args.output_dir}'")
